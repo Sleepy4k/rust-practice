@@ -208,9 +208,61 @@ fn main() {
 
   // references and borrowing
   let s1 = String::from("hello"); // s1 comes into scope
-  let (s2, len) = calculate_length(&s1); // s2 is a reference to s1 and len is the length of s1
+  let len = calculate_length(&s1); // s2 is a reference to s1 and len is the length of s1
 
-  println!("The length of '{}' is {}.", s2, len);
+  println!("The length of '{}' is {}.", s1, len);
+
+  // mutable references
+  let mut s = String::from("hello"); // s comes into scope
+
+  change(&mut s); // s is a mutable reference to s
+
+  println!("{}", s); // s is valid here
+
+  // dangling references
+  let s = String::from("hello"); // s comes into scope
+  let r1 = &s; // r1 is a mutable reference to s
+  let r2 = &s; // r2 is a mutable reference to s
+
+  println!("{}, {}", r1, r2); // r1 and r2 are valid here
+
+  let mut b = String::from("hello"); // b comes into scope
+  let x1 = &b; // x1 is a mutable reference to b
+  let x2 = &b; // x2 is a mutable reference to b
+
+  println!("{}, {}", x1, x2); // x1 and x2 are valid here
+
+  let x3 = &mut b; // x3 is a mutable reference to b
+
+  println!("{}", x3); // x3 is valid here
+
+  // slices
+  // let reference_to_dangle = dangle(); // dangle returns a reference to a String
+                       // that has been deallocated
+
+  // println!("{}", reference_to_dangle); // error! reference_to_dangle is no longer valid here
+
+  let mut sample = String::from("hello world"); // sample comes into scope
+  let word = first_word(&sample); // word is the index of the first word in sample
+
+  sample.clear(); // sample is cleared
+
+  println!("{}", word); // word is valid here
+  println!("{}", sample); // sample is valid here
+
+  let my_string = String::from("hello world"); // my_string comes into scope
+  let hello = &my_string[..5]; // hello is a slice of my_string
+  let world = &my_string[6..]; // world is a slice of my_string
+  let hello_world = &my_string[..]; // hello_world is a slice of my_string
+
+  let my_string_literal = first_word_slice(&my_string[..]); // my_string_literal is a slice of my_string
+
+  println!("{}, {}, {}, {}", hello, world, hello_world, my_string_literal); // all are valid here
+
+  let sample2 = "hello world"; // sample2 comes into scope
+  let word2 = first_word_slice(&sample2[..]); // word2 is the index of the first word in sample2
+
+  println!("{}", word2); // word2 is valid here
 }
 
 fn another_function(x: i32, y: i32) {
@@ -241,10 +293,42 @@ fn takes_and_gives_back(a_string: String) -> String {
   a_string // a_string is returned and moves out to the calling function
 }
 
-fn calculate_length(s: &String) -> (&String, usize) {
-  let length = s.len(); // len() returns the length of a String
+fn calculate_length(s: &String) -> usize { // s is a reference to a String
+  s.len() // return the length of s
+}
 
-  (s, length) // s is returned and moves out to the calling function
+fn change(some_string: &mut String) {
+  some_string.push_str(", world"); // push_str() appends a literal to a String
+}
+
+// fn dangle() -> &String { // dangle returns a reference to a String
+//   let s = String::from("hello"); // s is a new String
+
+//   &s // we return a reference to the String, s
+// }
+
+fn first_word(s: &String) -> usize {
+  let bytes = s.as_bytes();
+
+  for (i, &item) in bytes.iter().enumerate() {
+    if item == b' ' {
+      return i;
+    }
+  }
+
+  s.len()
+}
+
+fn first_word_slice(s: &str) -> &str {
+  let bytes = s.as_bytes();
+
+  for (i, &item) in bytes.iter().enumerate() {
+    if item == b' ' {
+      return &s[0..i];
+    }
+  }
+
+  &s[..]
 }
 
 // Path: src\main.rs
