@@ -141,6 +141,76 @@ fn main() {
   }
 
   println!("LIFTOFF!!!");
+
+  // ownership
+  {
+    let s1 = "hello"; // s1 comes into scope
+
+    println!("{}", s1); // s1 is valid here
+  } // s1 goes out of scope and is no longer valid here
+
+  // string literals vs string slices
+  //let mut s1 = "hello"; // string literal
+  let mut s2 = String::from("hello"); // string slice
+
+  //s1.push_str(", world!"); // error!
+  s2.push_str(", world!"); // push_str() appends a literal to a String
+
+  // Copy trait
+  let x = 5; // x comes into scope
+  let y = x; // x is copied to y
+
+  println!("x = {}, y = {}", x, y); // both are valid here
+
+  let s1 = String::from("hello"); // s1 comes into scope
+  let s2 = s1; // s1 is moved to s2
+
+  //println!("{}, world!", s1); // error! s1 is no longer valid here
+  println!("{}, world!", s2); // s2 is valid here
+
+  let s1 = String::from("hello"); // s1 comes into scope
+  let s2 = s1.clone(); // s1 is cloned to s2
+
+  println!("s1 = {}, s2 = {}", s1, s2); // both are valid here
+
+  // ownership and functions
+  let s = String::from("hello"); // s comes into scope
+  let s2 = s.clone(); // s is cloned to s2
+
+  takes_ownership(s); // s's value moves into the function...
+                      // ... and s is no longer valid here
+
+  //println!("{}", s); // error! s is no longer valid here
+  println!("{}", s2); // s2 is valid here
+
+  let x = 5; // x comes into scope
+
+  makes_copy(x); // x would move into the function,
+                 // but i32 is Copy, so it's okay to still
+                 // use x afterward
+
+  println!("{}", x); // x is still valid here
+
+  // return values and scope
+  let s1 = gives_ownership(); // gives_ownership moves its return
+                              // value into s1
+
+  println!("{}", s1); // s1 is valid here
+
+  let s2 = String::from("world"); // s2 comes into scope
+
+  let s3 = takes_and_gives_back(s2); // s2 is moved into
+                                     // takes_and_gives_back, which also
+                                     // moves its return value into s3
+
+  //println!("{}", s2); // error! s2 is no longer valid here
+  println!("{}", s3); // s3 is valid here
+
+  // references and borrowing
+  let s1 = String::from("hello"); // s1 comes into scope
+  let (s2, len) = calculate_length(&s1); // s2 is a reference to s1 and len is the length of s1
+
+  println!("The length of '{}' is {}.", s2, len);
 }
 
 fn another_function(x: i32, y: i32) {
@@ -149,7 +219,32 @@ fn another_function(x: i32, y: i32) {
 }
 
 fn valid_function(x: i32, y: i32) -> i32 {
-  x + y
+  x + y // return value
+}
+
+fn takes_ownership(some_string: String) {
+  println!("{}", some_string);
+}
+
+fn makes_copy(some_integer: i32) {
+  println!("{}", some_integer);
+}
+
+fn gives_ownership() -> String {
+  let some_string = String::from("hello"); // some_string comes into scope
+
+  some_string // some_string is returned and
+              // moves out to the calling function
+}
+
+fn takes_and_gives_back(a_string: String) -> String {
+  a_string // a_string is returned and moves out to the calling function
+}
+
+fn calculate_length(s: &String) -> (&String, usize) {
+  let length = s.len(); // len() returns the length of a String
+
+  (s, length) // s is returned and moves out to the calling function
 }
 
 // Path: src\main.rs
